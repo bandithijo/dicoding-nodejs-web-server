@@ -4,7 +4,9 @@ const port = 5000;
 const host = 'localhost';
 
 const server = http.createServer((request, response) => {
-  response.setHeader('Content-Type', 'application/json');
+  response
+    .setHeader('Content-Type', 'application/json')
+    .setHeader('Powered-By', 'Node.js');
 
   const { method, url } = request;
 
