@@ -4,29 +4,40 @@ const port = 5000;
 const host = 'localhost';
 
 const server = http.createServer((request, response) => {
-  response.setHeader('Content-Type', 'text/html');
+  response.setHeader('Content-Type', 'application/json');
 
-  const { method } = request;
+  const { method, url } = request;
 
-  if (method === 'GET') {
-    response.statusCode = 200;
-    response.end('<h1>Hello, NodeJS!</h1>');
-  }
-
-  if (method === 'POST') {
-    let body = [];
-
-    request.on('data', (chunk) => {
-      body.push(chunk);
-    });
-
-    request.on('end', () => {
-      response.statusCode = 201;
-
-      body = Buffer.concat(body).toString();
-      const { name } = JSON.parse(body);
-      response.end(`<h1>Hello, ${name}!</h1>`);
-    });
+  if (url === '/') {
+    if (method === 'GET') {
+      response.statusCode = 200;
+      response.end(JSON.stringify({ code: 200, message: 'Halaman homepage' }));
+    } else {
+      response.statusCode = 400;
+      response.end(JSON.stringify({ status: 400, message: 'Request tidak valid' }));
+    }
+  } else if (url === '/about') {
+    if (method === 'GET') {
+      response.statusCode = 200;
+      response.end(JSON.stringify({ code: 200, message: 'Halaman about' }));
+    } else if (method === 'POST') {
+      let body = [];
+      request.on('data', (chunk) => {
+        body.push(chunk);
+      });
+      request.on('end', () => {
+        body = Buffer.concat(body).toString();
+        const { name } = JSON.parse(body);
+        response.statusCode = 201;
+        response.end(JSON.stringify({ status: 201, message: `Hello, ${name}! dari halamam about` }));
+      });
+    } else {
+      response.statusCode = 400;
+      response.end(JSON.stringify({ status: 400, message: 'Request tidak valid' }));
+    }
+  } else {
+    response.statusCode = 404;
+    response.end(JSON.stringify({ status: 404, message: 'Halaman tidak ditemukan' }));
   }
 });
 
