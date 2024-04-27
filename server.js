@@ -3,33 +3,30 @@ const http = require('node:http');
 const port = 5000;
 const host = 'localhost';
 
-const output = (status, message) => {
-  return JSON.stringify({ status, message });
-};
-
 const server = http.createServer((request, response) => {
-  response.setHeader('Content-Type', 'application/json');
+  response.setHeader('Content-Type', 'text/html');
 
   const { method } = request;
 
   if (method === 'GET') {
     response.statusCode = 200;
-    response.end(output(200, 'Berhasil ditampilkan'));
+    response.end('<h1>Hello, NodeJS!</h1>');
   }
 
   if (method === 'POST') {
-    response.statusCode = 201;
-    response.end(output(201, 'Berhasil dibuat'));
-  }
+    let body = [];
 
-  if (method === 'PATCH' || method === 'PUT') {
-    response.statusCode = 202;
-    response.end(output(202, 'Berhasil diupdate'));
-  }
+    request.on('data', (chunk) => {
+      body.push(chunk);
+    });
 
-  if (method === 'DELETE') {
-    response.statusCode = 204;
-    response.end(output(204, 'Berhasil dihapus'));
+    request.on('end', () => {
+      response.statusCode = 201;
+
+      body = Buffer.concat(body).toString();
+      const { name } = JSON.parse(body);
+      response.end(`<h1>Hello, ${name}!</h1>`);
+    });
   }
 });
 
